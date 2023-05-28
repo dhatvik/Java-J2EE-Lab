@@ -81,3 +81,117 @@ public class Main extends JFrame implements ActionListener {
 		}
 	}
 }
+
+
+
+
+// method2
+
+package p5;
+
+import java.awt.event.*;
+import java.sql.*;
+import javax.swing.*;
+
+public class GUI_1 implements ActionListener{
+	static Connection con;
+	
+	static JFrame jf=new JFrame("JDBC + SWINGS");
+	static JTextField cusno=new JTextField(20);
+	static JTextField cusname=new JTextField(20);
+	static JTextField cusstate=new JTextField(20);
+	static JTextField cuscredlim=new JTextField(20);
+	static JTextField cusrepo=new JTextField(20);
+	static JButton insertbutton=new JButton("Insert");
+	static JButton f=new JButton("Cred>15k");
+	static JTextArea res=new JTextArea(50,50);
+	
+	static void eastablishDbConnection() throws Exception{
+		Class.forName("com.mysql.cj.jdbc.Driver");
+		String url="jdbc:mysql://localhost:3306/test";
+		String username="root";
+		String password="123";
+		con=DriverManager.getConnection(url,username,password);
+		if(con!=null) {
+			System.out.println("Connection established Successfully");
+			
+		}
+		else
+			System.out.println("Connection not established");
+	}
+	
+	public static void main(String[] args) throws Exception{
+		eastablishDbConnection();
+		
+		jf.setSize(800,600);
+		jf.setLayout(new BoxLayout(jf.getContentPane(),BoxLayout.Y_AXIS));
+		jf.add(new JLabel("Enter Customer Number"));
+		jf.add(cusno);
+		jf.add(new JLabel("Enter Customer Name"));
+		jf.add(cusname);
+		jf.add(new JLabel("Enter Customer state"));
+		jf.add(cusstate);
+		jf.add(new JLabel("Enter Customer Creditlimit"));
+		jf.add(cuscredlim);
+		jf.add(new JLabel("Enter Customer Repo"));
+		jf.add(cusrepo);
+		jf.add(insertbutton);
+		
+		jf.add(new JLabel("Click below to display cred lim>15k"));
+		jf.add(f);
+		
+		jf.add(res);
+		
+		insertbutton.addActionListener(new GUI_1());
+		f.addActionListener(new GUI_1());
+		
+		jf.setVisible(true);
+		jf.pack();	
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource()==insertbutton) {
+			System.out.println("Hell");
+			try {
+				
+				Statement s=con.createStatement();
+				String InsertQ="insert into customer values ("+cusno.getText()+",'"+cusname.getText()+"','"+cusstate.getText()+"',"+cuscredlim.getText()+","+cusrepo.getText()+")";
+				s.executeUpdate(InsertQ);
+			}
+			catch(SQLException s) {
+				System.out.println(s.toString());
+			}
+			
+		}
+		if(e.getSource()==f ) {
+			try {
+				Statement s=con.createStatement();
+				String ins;
+				ins="select * from customer where cust_cl>15000";
+				ResultSet rs=s.executeQuery(ins);
+				res.setText(null);
+				res.append("cust_no \t cust_name \t cust_state \t cust_cl \t cust_repo \n");
+				while(rs.next()) {
+					res.append(rs.getString("cust_no"));
+					res.append("\t");
+					res.append(rs.getString("cust_name"));
+					res.append("\t");
+					res.append(rs.getString("cust_state"));
+					res.append("\t");
+					res.append(rs.getString("cust_cl"));
+					res.append("\t");
+					res.append(rs.getString("cust_repo"));
+					res.append("\n");
+					
+				jf.pack();	
+				}
+			}
+			catch(SQLException s) {
+				System.out.println(s.toString());
+			}
+		}
+	}
+}
+
+
+
